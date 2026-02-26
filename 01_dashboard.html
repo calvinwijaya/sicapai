@@ -1,0 +1,68 @@
+<div class="mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-primary mb-1">Dashboard TCK DTGD</h2>
+        <p class="text-muted mb-0">Tentukan tahun dan klik <i>Refresh Data</i> untuk melihat data TCK</p>
+    </div>
+    
+    <div class="d-flex justify-content-end align-items-center mb-4 gap-2 mt-4">
+        <select id="filterTahun" class="form-select form-select-sm w-auto" onchange="refreshData()">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+        </select>
+
+        <select id="filterTriwulan" class="form-select form-select-sm w-auto" onchange="refreshData()">
+            <option value="all">Semua Triwulan</option>
+            <option value="tw1">Triwulan 1</option>
+            <option value="tw2">Triwulan 2</option>
+            <option value="tw3">Triwulan 3</option>
+            <option value="tw4">Triwulan 4</option>
+        </select>
+        <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="refreshData()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+        </button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8 mb-3 mb-md-0">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-secondary mb-4">Progres Realisasi Per Bidang</h5>
+                <canvas id="barChartRealisasi"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body d-flex flex-column align-items-center">
+                <h5 class="card-title fw-bold text-secondary mb-4">Realisasi Umum</h5>
+                <div style="position: relative; height: 250px; width: 100%;">
+                    <canvas id="pieChartRealisasi"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-danger h-100">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-x-circle-fill me-2"></i>Indikator Kinerja Tidak Tercapai</h6>
+            </div>
+            <div class="card-body bg-light" id="containerTidakTercapai" style="max-height: 500px; overflow-y: auto;">
+                </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-primary h-100">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-check-circle-fill me-2"></i>Indikator Kinerja Tercapai</h6>
+            </div>
+            <div class="card-body bg-light" id="containerTercapai" style="max-height: 500px; overflow-y: auto;">
+                </div>
+        </div>
+    </div>
+</div>

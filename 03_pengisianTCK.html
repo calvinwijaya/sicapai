@@ -1,0 +1,55 @@
+<div class="mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-primary mb-1">Pengisian TCK</h2>
+        <p class="text-muted mb-0">Lakukan pengisian capaian TCK setiap Indikator Kinerja Program.</p>
+    </div>
+    
+    <div class="d-flex align-items-center gap-2">        
+        <select id="filterTahunTCK" class="form-select form-select-sm w-auto" onchange="refreshDataTCK()">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+        </select>
+        
+        <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="refreshDataTCK()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+        </button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+    <table class="table table-hover table-sm align-middle mb-0" id="tableTCK" style="min-width: 950px;">
+        <thead class="bg-dark text-white text-center align-middle">
+            <tr>
+                <th width="3%" rowspan="2" class="bg-dark text-white border-secondary">No</th>
+                <th width="30%" rowspan="2" class="text-start bg-dark text-white border-secondary">Indikator Kinerja Program</th>
+                <th width="5%" rowspan="2" class="bg-dark text-white border-secondary">Target</th>
+                <th colspan="4" class="bg-dark text-white border-secondary">Capaian Triwulan</th>
+                <th width="6%" rowspan="2" class="bg-dark text-white border-secondary">Total</th>
+                <th width="6%" rowspan="2" class="bg-dark text-white border-secondary">%</th>
+                <th width="5%" rowspan="2" class="bg-dark text-white border-secondary">Status</th>
+                <th width="8%" rowspan="2" class="bg-dark text-white border-secondary">Bukti</th>
+                <th width="7%" rowspan="2" class="bg-dark text-white border-secondary">Aksi</th>
+            </tr>
+            <tr>
+                <th width="7%" class="bg-dark text-white border-secondary">TW1</th>
+                <th width="7%" class="bg-dark text-white border-secondary">TW2</th>
+                <th width="7%" class="bg-dark text-white border-secondary">TW3</th>
+                <th width="7%" class="bg-dark text-white border-secondary">TW4</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyTCK">
+            </tbody>
+    </table>
+</div>
+
+<div class="card-footer bg-white border-0 py-3">
+    <div class="small text-muted">
+        <span class="fw-bold me-2">Legenda Status:</span> 
+        <i class="bi bi-check-circle-fill text-success fs-6 align-middle me-1"></i> Tercapai 
+        <span class="mx-2">|</span> 
+        <i class="bi bi-x-circle-fill text-danger fs-6 align-middle me-1"></i> Tidak Tercapai
+    </div>
+</div>

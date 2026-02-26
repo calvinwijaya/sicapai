@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SICAPAI – Login</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <div class="login-container">
+    <img src="assets/logo2.png" alt="Department Logo" class="logo">
+    <h1 class="fw-bold text-primary">Selamat Datang di SICAPAI</h1>
+
+    <p class="subtitle">
+      Sistem Informasi Target Capaian Kinerja<br>        
+      Departemen Teknik Geodesi FT UGM
+    </p>
+
+    <!-- Google Login -->
+    <div id="g_id_onload"
+         data-client_id="990268732296-hb74j4mvnq6k2r80kja2amgm4njlgu9n.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with">
+    </div>
+
+    <div id="login-message"></div>
+
+  </div>
+
+  <footer>
+    © Departemen Teknik Geodesi FT UGM 2026
+  </footer>
+
+  <script src="js/auth.js"></script>
+
+</body>
+</html>
