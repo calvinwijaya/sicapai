@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const pageKey = params.get("page");
     const routes = { 'dashboard': '01_dashboard.html',
+                     'timeseries': '01a_timeseries.html',
                      'assignPIC': '02_assignPIC.html',
                      'pengisianTCK': '03_pengisianTCK.html'
      };
@@ -104,6 +105,7 @@ function loadPage(eventOrPage, pagePath, key) {
             // -----------------------------------------
 
             if (finalKey === 'dashboard') loadScript('js/01_dashboard.js')
+            else if (finalKey === 'timeseries') loadScript('js/01a_timeseries.js')
             else if (finalKey === 'assignPIC') loadScript('js/02_assignPIC.js')
             else if (finalKey === 'pengisianTCK') loadScript('js/03_pengisianTCK.js')
         })

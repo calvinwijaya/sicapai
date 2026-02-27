@@ -37,7 +37,7 @@ function processAndRenderData(data) {
 
     // 1. Inisialisasi Counter
     let barData = {
-        "Bidang Pendidikan dan Pengajaran": { tercapai: 0, belum: 0 },
+        "Bidang Pendidikan dan Kemahasiswaan": { tercapai: 0, belum: 0 },
         "Bidang Keuangan, Aset, dan SDM": { tercapai: 0, belum: 0 },
         "Bidang Penelitian, Pengabdian kepada Masyarakat, dan Kerjasama": { tercapai: 0, belum: 0 }
     };
@@ -47,7 +47,7 @@ function processAndRenderData(data) {
     
     let listTidakTercapai = [];
     let listTercapaiByBidang = {
-        "Bidang Pendidikan dan Pengajaran": [],
+        "Bidang Pendidikan dan Kemahasiswaan": [],
         "Bidang Keuangan, Aset, dan SDM": [],
         "Bidang Penelitian, Pengabdian kepada Masyarakat, dan Kerjasama": []
     };
@@ -152,7 +152,7 @@ function renderBarChart(barData) {
         data: {
             // Membagi string menjadi array membuat teks otomatis turun ke baris baru (Word Wrap)
             labels: [
-                ['Pendidikan &', 'Pengajaran'], 
+                ['Pendidikan &', 'Kemahasiswaan'], 
                 ['Keuangan, Aset', '& SDM'], 
                 ['Penelitian, Pengabdian', '& Kerjasama']
             ],

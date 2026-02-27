@@ -37,7 +37,7 @@ const COL = {
 };
 
 const NAMA_BIDANG = [
-    "Bidang Pendidikan dan Pengajaran",
+    "Bidang Pendidikan dan Kemahasiswaan",
     "Bidang Keuangan, Aset, dan SDM",
     "Bidang Penelitian, Pengabdian kepada Masyarakat, dan Kerjasama"
 ];

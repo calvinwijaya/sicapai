@@ -1,0 +1,57 @@
+<div class="mb-4 d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold text-primary mb-1">Time Series TCK</h2>
+        <p class="text-muted mb-0">Lihat perbandingan tren target capaian kinerja antar tahun.</p>
+    </div>
+    
+    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="refreshTimeSeriesData()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Refresh Data
+    </button>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-light">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="fw-semibold text-secondary">Tentukan Range Tahun Time Series:</span>
+            </div>
+            <div class="col-auto d-flex align-items-center gap-2">
+                <select id="filterTahunMulai" class="form-select form-select-sm" onchange="refreshTimeSeriesData()">
+                    <option value="2024" selected>2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                <span class="fw-bold text-muted">sampai</span>
+                <select id="filterTahunAkhir" class="form-select form-select-sm" onchange="refreshTimeSeriesData()">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-secondary mb-4 text-center">Total Capaian TCK Keseluruhan</h5>
+                <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="tsTotalChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-body">
+                <h5 class="card-title fw-bold text-secondary mb-4 text-center">Tren Indikator Tercapai per Bidang</h5>
+                <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="tsBidangChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
