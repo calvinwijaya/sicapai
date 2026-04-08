@@ -5,7 +5,8 @@ const GAS_POST_TCK_URL = "https://script.google.com/macros/s/AKfycbwESBAaiqHC0iu
 const ADMIN_EMAILS = [
     "dwi.sapto@ugm.ac.id", 
     "fadilasobasita@mail.ugm.ac.id", 
-    "calvin.wijaya@mail.ugm.ac.id"
+    "calvin.wijaya@mail.ugm.ac.id",
+    "i.hanun.azizi@mail.ugm.ac.id"
 ];
 
 const PIC_OPTIONS = {

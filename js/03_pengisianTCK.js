@@ -1,5 +1,6 @@
 var tableDataTCK = [];
 var loggedInUserName = "";
+var isAdminUser = false;
 
 initUserTCK();
 refreshDataTCK();
@@ -11,14 +12,18 @@ function initUserTCK() {
         return;
     }
     const user = JSON.parse(userStr);
+    
+    // Cari nama berdasarkan email dari config
     loggedInUserName = Object.keys(PIC_OPTIONS).find(key => PIC_OPTIONS[key] === user.email) || user.email;
+    
+    // Cek apakah email user yang login ada di dalam list ADMIN_EMAILS
+    isAdminUser = ADMIN_EMAILS.includes(user.email.trim());
 }
 
 function refreshDataTCK() {
     const tahun = document.getElementById('filterTahunTCK').value;
     const url = `${GAS_WEB_APP_URL}?tahun=${tahun}`;
     
-    const overlay = document.getElementById('loadingOverlay');
     showLoading('Sedang Memuat Data...');
 
     fetch(url)
@@ -50,7 +55,9 @@ function renderTabelTCK() {
         tr.id = `row-${row[0]}`;
         
         let picList = (row[4] || "").toString().split(",").map(n => n.trim());
-        let isAuthorized = picList.includes(loggedInUserName);
+        
+        // LOGIKA BARU: Authorized jika namanya ada di PIC List ATAU jika dia adalah Admin
+        let isAuthorized = picList.includes(loggedInUserName) || isAdminUser;
         
         if (!isAuthorized) {
             tr.classList.add("table-secondary", "opacity-75");
@@ -76,7 +83,6 @@ function renderTabelTCK() {
 
         let persentase = row[12] !== "" ? Math.round(row[12] * 100) + "%" : "-";
 
-        // Menambahkan class spesifik (val-target, val-capaian-total, dll) agar mudah ditarget oleh JS saat kalkulasi real-time
         tr.innerHTML = `
             <td class="fw-bold text-center val-no">${row[0]}</td>
             <td class="small">
@@ -108,7 +114,6 @@ function enableEditMode(rowNo) {
         const td = tr.querySelector(selector);
         const val = parseFloat(td.innerText) || 0;
         
-        // Lebarkan input menjadi 90px agar muat nominal besar seperti di 1B
         td.innerHTML = `<input type="number" class="form-control form-control-sm text-center input-tw px-1" value="${val}" style="min-width:90px;" oninput="recalculateRow('${rowNo}', ${targetVal})">`;
     });
 
@@ -127,7 +132,6 @@ function enableEditMode(rowNo) {
     `;
 }
 
-// Fungsi Kalkulasi Real-Time
 function recalculateRow(rowNo, targetVal) {
     const tr = document.getElementById(`row-${rowNo}`);
     const inputs = tr.querySelectorAll('.input-tw');
@@ -139,29 +143,26 @@ function recalculateRow(rowNo, targetVal) {
     
     let capaianTCK = 0;
     
-    // Cek apakah No Indikator masuk ke array MAX_INDICATORS
     if (MAX_INDICATORS.includes(rowNo.toString())) {
         capaianTCK = Math.max(tw1, tw2, tw3, tw4);
     } else {
-        capaianTCK = tw1 + tw2 + tw3 + tw4; // Sisa nomor menggunakan SUM
+        capaianTCK = tw1 + tw2 + tw3 + tw4; 
     }
     
-    // Hitung persentase
     let persentase = 0;
     if (targetVal > 0) {
         persentase = (capaianTCK / targetVal) * 100;
     } else if (targetVal === 0 && capaianTCK > 0) {
-        persentase = 100; // Logika fallback jika target 0 tapi ada isian
+        persentase = 100; 
     }
     let persentaseBulat = Math.round(persentase);
     
-    // Update tampilan HTML secara langsung
     tr.querySelector('.val-capaian-total').innerText = capaianTCK;
     tr.querySelector('.val-persentase').innerText = persentaseBulat + '%';
     
     const badgeKet = persentaseBulat >= 100 
-        ? `<span class="badge bg-success">Tercapai</span>` 
-        : `<span class="badge bg-danger">Tidak Tercapai</span>`;
+        ? `<i class="bi bi-check-circle-fill text-success fs-5" title="Tercapai"></i>` 
+        : `<i class="bi bi-x-circle-fill text-danger fs-5" title="Tidak Tercapai"></i>`;
         
     tr.querySelector('.val-keterangan').innerHTML = badgeKet;
 }
@@ -182,7 +183,6 @@ function saveRowData(rowNo) {
         bukti: buktiInput
     };
 
-    const overlay = document.getElementById('loadingOverlay');
     showLoading('Sedang Mengirim Data...');
 
     fetch(GAS_POST_TCK_URL, {
