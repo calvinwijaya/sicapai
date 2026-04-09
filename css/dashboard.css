@@ -76,3 +76,33 @@ body {
     align-items: center;
     z-index: 9999;
 }
+
+/* --- Tambahan CSS Profil Sidebar --- */
+.user-profile {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.profile-img {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background-color: white; /* Antisipasi jika background foto transparan */
+}
+
+/* Saat sidebar dikecilkan */
+.sidebar.collapsed .profile-img {
+    width: 40px !important;
+    height: 40px !important;
+}
+
+.sidebar.collapsed .user-profile .label {
+    opacity: 0;
+    height: 0;
+    pointer-events: none;
+    margin: 0 !important;
+    overflow: hidden;
+}
+
+.sidebar.collapsed hr.label {
+    display: none;
+}

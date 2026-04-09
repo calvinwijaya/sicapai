@@ -4,6 +4,34 @@ if (!user) {
 } else {
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("userNama").textContent = user.nama;
+
+        const sidebarUserNama = document.getElementById("sidebarUserNama");
+        const sidebarUserRole = document.getElementById("sidebarUserRole");
+        const userProfilePic = document.getElementById("userProfilePic");
+
+        if (sidebarUserNama) sidebarUserNama.textContent = user.nama;
+        if (sidebarUserRole) sidebarUserRole.textContent = user.status;
+        
+        if (userProfilePic) {
+            const nameForAvatar = user.nama.replace(/\s+/g, '+');
+            const defaultAvatarUrl = `https://ui-avatars.com/api/?name=${nameForAvatar}&background=0d6efd&color=fff&rounded=true&bold=true`;
+
+            if (user.picture) {
+                userProfilePic.src = user.picture;
+                // Jika foto Google gagal dimuat, ganti ke Inisial Nama
+                userProfilePic.onerror = function() {
+                    this.onerror = null; 
+                    this.src = defaultAvatarUrl;
+                };
+            } else {
+                userProfilePic.src = defaultAvatarUrl;
+            }
+        }
+
+        const isAdmin = ADMIN_EMAILS.includes(user.email);
+        if (isAdmin && sidebarUserRole) {
+                sidebarUserRole.innerHTML = `${user.status} <span class="badge bg-warning text-dark ms-1">Admin</span>`;
+            }
     });
 }
 
