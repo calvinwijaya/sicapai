@@ -6,7 +6,8 @@ const ADMIN_EMAILS = [
     "dwi.sapto@ugm.ac.id", 
     "fadilasobasita@mail.ugm.ac.id", 
     "calvin.wijaya@mail.ugm.ac.id",
-    "i.hanun.azizi@mail.ugm.ac.id"
+    "i.hanun.azizi@mail.ugm.ac.id",
+    "cecep.pratama@ugm.ac.id"
 ];
 
 const PIC_OPTIONS = {
