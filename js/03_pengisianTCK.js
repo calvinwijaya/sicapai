@@ -92,6 +92,11 @@ function renderTabelTCK() {
         let persentaseStr = Math.round(persentaseNum * 100) + "%";
         let isTercapai = persentaseNum >= 1;
 
+        // TAMBAHAN: Tentukan status baris untuk fitur filter
+        let rowStatus = isMustahil ? "mustahil" : (isTercapai ? "tercapai" : "tidak_tercapai");
+        tr.dataset.status = rowStatus;
+        tr.dataset.search = (row[3] || "").toString().toLowerCase(); // Simpan nama indikator huruf kecil
+        
         let badgeKet = isTercapai 
             ? `<i class="bi bi-check-circle-fill ${isMustahil ? 'text-light' : 'text-success'} fs-5" title="Tercapai"></i>` 
             : `<i class="bi bi-x-circle-fill ${isMustahil ? 'text-light' : 'text-danger'} fs-5" title="Tidak Tercapai"></i>`;
@@ -160,6 +165,10 @@ function renderTabelTCK() {
         if (row1 && row2Headers.length > 0) {
             row2Headers.forEach(th => th.style.top = row1.getBoundingClientRect().height + 'px');
         }
+        
+        // Aplikasikan kembali filter setelah data selesai dirender
+        filterTableTCK();
+        
     }, 50);
 }
 
@@ -220,7 +229,9 @@ function recalculateRow(rowNo, targetVal) {
     
     let persentaseBulat = Math.round(persentase);
     
-    // Tampilkan dengan format ribuan
+    // TAMBAHAN: Update status baris agar filter dropdown tetap akurat saat diedit
+    tr.dataset.status = persentaseBulat >= 100 ? "tercapai" : "tidak_tercapai";
+
     tr.querySelector('.val-capaian-total').innerText = formatNumber(capaianTCK);
     tr.querySelector('.val-persentase').innerText = persentaseBulat + '%';
     
@@ -321,10 +332,21 @@ function toggleMustahil(rowNo, isCurrentlyMustahil) {
             })
             .then(res => res.json())
             .then(res => {
-                hideLoading();
+                hideLoading(); // Sembunyikan loading "Memproses..."
+                
                 if (res.status === 'success') {
-                    Swal.fire('Berhasil!', 'Status TCK berhasil diperbarui.', 'success');
-                    refreshDataTCK();
+                    // PERBAIKAN: Gunakan .then() agar refresh menunggu klik OK dari user
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Status TCK berhasil diperbarui.',
+                        icon: 'success',
+                        showConfirmButton: true,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            refreshDataTCK(); // Loading "Sedang Memuat Data..." baru akan muncul di sini
+                        }
+                    });
                 } else {
                     Swal.fire('Gagal!', res.message, 'error');
                 }
@@ -333,6 +355,30 @@ function toggleMustahil(rowNo, isCurrentlyMustahil) {
                 hideLoading();
                 Swal.fire('Error', 'Terjadi kesalahan saat memproses permintaan.', 'error');
             });
+        }
+    });
+}
+
+// FUNGSI BARU: Pencarian dan Filter Status secara Real-Time
+function filterTableTCK() {
+    const searchValue = document.getElementById('searchIndikator').value.toLowerCase();
+    const statusValue = document.getElementById('filterStatusTCK').value;
+    const rows = document.querySelectorAll('#tbodyTCK tr');
+
+    // Kosongkan filter bawaan setiap kali pencarian dijalankan agar tidak bertabrakan
+    rows.forEach(tr => {
+        const text = tr.dataset.search || "";
+        const status = tr.dataset.status || "";
+
+        // Logika pencocokan
+        const matchSearch = text.includes(searchValue);
+        const matchStatus = statusValue === 'all' || status === statusValue;
+
+        // Tampilkan jika cocok, sembunyikan jika tidak
+        if (matchSearch && matchStatus) {
+            tr.classList.remove('d-none');
+        } else {
+            tr.classList.add('d-none');
         }
     });
 }
