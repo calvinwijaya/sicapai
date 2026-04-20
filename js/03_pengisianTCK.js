@@ -60,15 +60,24 @@ function renderTabelTCK() {
         tr.id = `row-${row[0]}`;
         
         let picList = (row[4] || "").toString().split(",").map(n => n.trim());
-        
-        // LOGIKA BARU: Authorized jika namanya ada di PIC List ATAU jika dia adalah Admin
         let isAuthorized = picList.includes(loggedInUserName) || isAdminUser;
         
-        if (!isAuthorized) {
+        // --- CEK STATUS TIDAK MUNGKIN TERCAPAI (KOLOM P / INDEX 15) ---
+        let isMustahil = (row[15] || "").toString().trim() === "Tidak Mungkin Tercapai";
+
+        // Pewarnaan Baris (Merah gelap jika mustahil)
+        if (isMustahil) {
+            // Menimpa variabel CSS Bootstrap agar warna teraplikasi ke seluruh sel (<td>)
+            tr.style.setProperty('--bs-table-bg', '#721c24');
+            tr.style.setProperty('--bs-table-color', '#ffffff');
+            tr.style.setProperty('--bs-table-hover-bg', '#5c161d'); // Warna saat di-hover
+            tr.style.setProperty('--bs-table-hover-color', '#ffffff');
+            tr.classList.add("fw-semibold");
+        } else if (!isAuthorized) {
             tr.classList.add("table-secondary", "opacity-75");
         }
 
-        // --- MULAI PERBAIKAN LOGIKA TARGET 0 & NAN% ---
+        // Kalkulasi target & capaian (sama seperti sebelumnya)
         let targetVal = parseFloat(row[6]) || 0;
         let capaianTotal = parseFloat(row[11]) || 0;
         
@@ -77,43 +86,64 @@ function renderTabelTCK() {
             let sheetPct = parseFloat(row[12]);
             persentaseNum = isNaN(sheetPct) ? (capaianTotal / targetVal) : sheetPct;
         } else {
-            persentaseNum = 1; // Jika target 0, otomatis 100%
+            persentaseNum = 1; 
         }
         
         let persentaseStr = Math.round(persentaseNum * 100) + "%";
         let isTercapai = persentaseNum >= 1;
 
         let badgeKet = isTercapai 
-            ? `<i class="bi bi-check-circle-fill text-success fs-5" title="Tercapai"></i>` 
-            : `<i class="bi bi-x-circle-fill text-danger fs-5" title="Tidak Tercapai"></i>`;
-        // --- AKHIR PERBAIKAN LOGIKA ---
+            ? `<i class="bi bi-check-circle-fill ${isMustahil ? 'text-light' : 'text-success'} fs-5" title="Tercapai"></i>` 
+            : `<i class="bi bi-x-circle-fill ${isMustahil ? 'text-light' : 'text-danger'} fs-5" title="Tidak Tercapai"></i>`;
 
-        let buktiHtml = row[14] ? `<a href="${row[14]}" target="_blank" class="text-truncate d-block" style="max-width: 100px;">Lihat Bukti</a>` : "-";
+        // Ubah warna link bukti jadi putih jika baris merah
+        let linkClass = isMustahil ? "text-info" : "text-primary";
+        let buktiHtml = row[14] ? `<a href="${row[14]}" target="_blank" class="text-truncate d-block ${linkClass}" style="max-width: 100px;">Lihat Bukti</a>` : "-";
 
+        // --- TOMBOL AKSI TERMASUK TOMBOL ADMIN ---
         let aksiHtml = "";
-        if (isAuthorized) {
-            aksiHtml = `
-                <button class="btn btn-sm btn-warning text-dark px-2 py-1 btn-edit" onclick="enableEditMode('${row[0]}')">
+        
+        let btnEdit = "";
+        if (isAuthorized && !isMustahil) {
+            btnEdit = `
+                <button class="btn btn-sm btn-warning text-dark px-2 py-1 btn-edit" onclick="enableEditMode('${row[0]}')" title="Edit Capaian">
                     <i class="bi bi-pencil-square"></i>
                 </button>
             `;
+        }
+
+        let btnAdminMustahil = "";
+        if (isAdminUser) {
+            // Jika sudah ditandai, tombol berubah jadi 'batal tandai'
+            let btnClass = isMustahil ? "btn-light text-danger" : "btn-danger";
+            let iconMustahil = isMustahil ? "bi-arrow-counterclockwise" : "bi-slash-circle";
+            let titleMustahil = isMustahil ? "Batalkan Status Tidak Mungkin" : "Tandai Tidak Mungkin Tercapai";
+            
+            btnAdminMustahil = `
+                <button class="btn btn-sm ${btnClass} px-2 py-1 ms-1" onclick="toggleMustahil('${row[0]}', ${isMustahil})" title="${titleMustahil}">
+                    <i class="bi ${iconMustahil}"></i>
+                </button>
+            `;
+        }
+
+        if (isAuthorized || isAdminUser) {
+            aksiHtml = `<div class="d-flex justify-content-center">${btnEdit}${btnAdminMustahil}</div>`;
         } else {
             aksiHtml = `<i class="bi bi-lock-fill text-muted" title="Bukan tugas Anda"></i>`;
         }
 
-        // Memasukkan formatNumber dan variabel yang sudah dikalkulasi ulang
         tr.innerHTML = `
             <td class="fw-bold text-center val-no">${row[0]}</td>
             <td class="small">
                 ${row[3]}
-                <div class="mt-1 text-muted" style="font-size: 0.75rem;">PIC: <b>${row[4] || '-'}</b></div>
+                <div class="mt-1 ${isMustahil ? 'text-light' : 'text-muted'}" style="font-size: 0.75rem;">PIC: <b>${row[4] || '-'}</b></div>
             </td>
             <td class="text-center fw-bold val-target" data-value="${targetVal}">${formatNumber(targetVal)}</td>
             <td class="text-center val-tw1">${formatNumber(row[7] || 0)}</td>
             <td class="text-center val-tw2">${formatNumber(row[8] || 0)}</td>
             <td class="text-center val-tw3">${formatNumber(row[9] || 0)}</td>
             <td class="text-center val-tw4">${formatNumber(row[10] || 0)}</td>
-            <td class="text-center fw-bold bg-light val-capaian-total">${formatNumber(capaianTotal)}</td>
+            <td class="text-center fw-bold val-capaian-total">${formatNumber(capaianTotal)}</td>
             <td class="text-center val-persentase">${persentaseStr}</td>
             <td class="text-center val-keterangan">${badgeKet}</td>
             <td class="val-bukti text-center" data-raw="${row[14] || ''}">${buktiHtml}</td>
@@ -123,18 +153,12 @@ function renderTabelTCK() {
         tbody.appendChild(tr);
     });
 
+    // Menjaga presisi sticky header
     setTimeout(() => {
         const row1 = document.querySelector('#tableTCK thead tr:nth-child(1)');
         const row2Headers = document.querySelectorAll('#tableTCK thead tr:nth-child(2) th');
-        
         if (row1 && row2Headers.length > 0) {
-            // Ambil tinggi presisi dari baris pertama
-            const row1Height = row1.getBoundingClientRect().height; 
-            
-            // Terapkan tinggi tersebut sebagai titik 'top' untuk baris kedua
-            row2Headers.forEach(th => {
-                th.style.top = row1Height + 'px';
-            });
+            row2Headers.forEach(th => th.style.top = row1.getBoundingClientRect().height + 'px');
         }
     }, 50);
 }
@@ -146,7 +170,7 @@ function enableEditMode(rowNo) {
     const twCols = ['.val-tw1', '.val-tw2', '.val-tw3', '.val-tw4'];
     twCols.forEach(selector => {
         const td = tr.querySelector(selector);
-        const val = parseFloat(td.innerText) || 0;
+        const val = parseFloat(td.innerText.replace(/\./g, '')) || 0; // Hapus titik ribuan sebelum masuk ke input type="number"
         
         td.innerHTML = `<input type="number" class="form-control form-control-sm text-center input-tw px-1" value="${val}" style="min-width:90px;" oninput="recalculateRow('${rowNo}', ${targetVal})">`;
     });
@@ -156,13 +180,17 @@ function enableEditMode(rowNo) {
     tdBukti.innerHTML = `<input type="text" class="form-control form-control-sm input-bukti" value="${rawBukti}" placeholder="Link Drive">`;
 
     const tdAction = tr.querySelector('.action-col');
+    
+    // PERBAIKAN DI SINI: Menggunakan flexbox horizontal (d-flex gap-1) dan hanya menggunakan ikon agar dimensi baris tidak membesar
     tdAction.innerHTML = `
-        <button class="btn btn-sm btn-success px-2 py-1 mb-1 w-100" onclick="saveRowData('${rowNo}')">
-            <i class="bi bi-check2"></i> Simpan
-        </button>
-        <button class="btn btn-sm btn-secondary px-2 py-1 w-100" onclick="cancelEditMode()">
-            <i class="bi bi-x"></i> Batal
-        </button>
+        <div class="d-flex justify-content-center gap-1">
+            <button class="btn btn-sm btn-success px-2 py-1" onclick="saveRowData('${rowNo}')" title="Simpan Data">
+                <i class="bi bi-check-lg fw-bold"></i>
+            </button>
+            <button class="btn btn-sm btn-secondary px-2 py-1" onclick="cancelEditMode()" title="Batal Edit">
+                <i class="bi bi-x-lg fw-bold"></i>
+            </button>
+        </div>
     `;
 }
 
@@ -266,4 +294,45 @@ function hideLoading() {
 
 function cancelEditMode() {
     renderTabelTCK();
+}
+
+function toggleMustahil(rowNo, isCurrentlyMustahil) {
+    let actionText = isCurrentlyMustahil ? "membatalkan status" : "menandai indikator ini sebagai";
+    let newValue = isCurrentlyMustahil ? "" : "Tidak Mungkin Tercapai";
+    
+    Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: `Anda akan ${actionText} "Tidak Mungkin Tercapai" untuk tahun ini.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Lanjutkan',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const tahun = document.getElementById('filterTahunTCK').value;
+            const updateData = { no: rowNo, ket_mustahil: newValue };
+            
+            showLoading('Memproses...');
+            fetch(GAS_POST_TCK_URL, {
+                method: 'POST',
+                body: JSON.stringify({ tahun: tahun, updates: [updateData] })
+            })
+            .then(res => res.json())
+            .then(res => {
+                hideLoading();
+                if (res.status === 'success') {
+                    Swal.fire('Berhasil!', 'Status TCK berhasil diperbarui.', 'success');
+                    refreshDataTCK();
+                } else {
+                    Swal.fire('Gagal!', res.message, 'error');
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                Swal.fire('Error', 'Terjadi kesalahan saat memproses permintaan.', 'error');
+            });
+        }
+    });
 }

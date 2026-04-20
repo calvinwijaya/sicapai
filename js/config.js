@@ -1,6 +1,6 @@
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz7D-Ek10JsuRFHWR-fMvOz70xrTk_H0RGqjG_Y6_j8qBiXauf6oge7_ADL4a7YdKbD/exec"; 
 
-const GAS_POST_TCK_URL = "https://script.google.com/macros/s/AKfycbwESBAaiqHC0iuHBQL5QIMALC1bjXTDthVJ9_qufgbghZs0F5gcH_8vdatTpu52qAnI/exec";
+const GAS_POST_TCK_URL = "https://script.google.com/macros/s/AKfycbzTel9AaNwLwzv3VuxJa0i59RJ-WG8UIngbgmyXrw7dSlLu5TsMEsbLAuhmjPHM--wZ/exec";
 
 const ADMIN_EMAILS = [
     "dwi.sapto@ugm.ac.id", 
@@ -32,9 +32,12 @@ const PIC_OPTIONS = {
 // Daftar Nomor Indikator yang perhitungannya menggunakan nilai MAX
 const MAX_INDICATORS = ['3a', '3b', '4', '5a', '6b', '11', '16', '24', '25', '29', '30', '31'];
 
+// Tambahkan konstanta KET_MUSTAHIL
 const COL = {
     NO: 0, BIDANG: 1, PROGRAM: 2, INDIKATOR: 3, PIC: 4, 
-    TARGET: 6, TW1: 7, TW2: 8, TW3: 9, TW4: 10, CAPAIAN_TOTAL: 11, PERSENTASE: 12, KET_CAPAIAN: 13, BUKTI: 14
+    TARGET: 6, TW1: 7, TW2: 8, TW3: 9, TW4: 10, 
+    CAPAIAN_TOTAL: 11, PERSENTASE: 12, KET_CAPAIAN: 13, BUKTI: 14,
+    KET_MUSTAHIL: 15 // Tambahan
 };
 
 const NAMA_BIDANG = [

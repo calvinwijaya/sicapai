@@ -38,8 +38,8 @@ function refreshData() {
 
 function processAndRenderData(data) {
     const filterTw = document.getElementById('filterTriwulan').value;
+    const currentTahun = parseInt(document.getElementById('filterTahun').value); // Ambil tahun saat ini
 
-    // 1. Inisialisasi Counter
     let barData = {
         "Bidang Pendidikan dan Kemahasiswaan": { tercapai: 0, belum: 0 },
         "Bidang Keuangan, Aset, dan SDM": { tercapai: 0, belum: 0 },
@@ -56,6 +56,8 @@ function processAndRenderData(data) {
         "Bidang Penelitian, Pengabdian kepada Masyarakat, dan Kerjasama": []
     };
 
+    let listMustahil = [];
+
     // 2. Looping Data Row per Row
     data.forEach(row => {
         let bidang = row[COL.BIDANG];
@@ -63,6 +65,15 @@ function processAndRenderData(data) {
         
         // Skip baris kosong
         if (!noIndikator) return;
+
+        // Cek apakah dia ditandai Mustahil
+        let isMustahil = (row[COL.KET_MUSTAHIL] || "").toString().trim() === "Tidak Mungkin Tercapai";
+        if (isMustahil) {
+            // Kita simpan ke array khusus agar nanti di-render di tabel bawah
+            listMustahil.push(row);
+            // Jangan masukkan ke perhitungan grafik & list biasa agar tidak rancu
+            return; 
+        }
 
         // Hitung untuk Grafik
         // Ambil nilai masing-masing komponen
@@ -145,6 +156,7 @@ function processAndRenderData(data) {
     // 5. Render List Kontainer Bawah
     renderListTidakTercapai(listTidakTercapai);
     renderListTercapai(listTercapaiByBidang);
+    renderTableMustahil(listMustahil, currentTahun);
 }
 
 function renderBarChart(barData) {
@@ -311,4 +323,54 @@ function clearDashboard() {
     if (pieChartInstance) pieChartInstance.destroy();
     document.getElementById('containerTidakTercapai').innerHTML = '';
     document.getElementById('containerTercapai').innerHTML = '';
+}
+
+function renderTableMustahil(listMustahil, currentTahun) {
+    const tbody = document.getElementById('tbodyMustahil');
+    
+    if (listMustahil.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted py-3">Bagus! Belum ada indikator yang ditandai sebagai tidak mungkin tercapai tahun ini.</td></tr>';
+        return;
+    }
+
+    // Tampilkan pesan loading selagi kita fetch data tahun lalu
+    tbody.innerHTML = '<tr><td colspan="6" class="py-3"><div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div> Mengambil data komparasi tahun lalu...</td></tr>';
+
+    const prevYear = currentTahun - 1;
+    const urlPrev = `${GAS_WEB_APP_URL}?tahun=${prevYear}`;
+
+    fetch(urlPrev)
+        .then(res => res.json())
+        .then(res => {
+            let prevData = res.status === 'success' ? res.data : [];
+            tbody.innerHTML = "";
+            
+            listMustahil.forEach(item => {
+                let no = item[COL.NO];
+                let indName = item[COL.INDIKATOR];
+                let capNow = item[COL.CAPAIAN_TOTAL]; // Pastikan properti ini sudah diformat sebelumnya di processAndRenderData atau gunakan formatNumber()
+                let tgtNow = item[COL.TARGET];
+
+                // Cari baris dari data tahun lalu yang No-nya sama
+                let prevRow = prevData.find(r => r[COL.NO] == no);
+                
+                // Gunakan fungsi formatNumber() yang sudah kita buat sebelumnya
+                let capPrev = prevRow ? formatNumber(parseFloat(prevRow[COL.CAPAIAN_TOTAL]) || 0) : "-";
+                let tgtPrev = prevRow ? formatNumber(parseFloat(prevRow[COL.TARGET]) || 0) : "-";
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${no}</td>
+                        <td class="text-start small fw-semibold">${indName}</td>
+                        <td>${formatNumber(capNow)}</td>
+                        <td>${formatNumber(tgtNow)}</td>
+                        <td>${capPrev}</td>
+                        <td>${tgtPrev}</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-danger py-3">Gagal memuat data komparasi tahun lalu. Pastikan sheet tahun sebelumnya tersedia.</td></tr>';
+        });
 }
