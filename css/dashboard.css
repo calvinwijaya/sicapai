@@ -106,3 +106,37 @@ body {
 .sidebar.collapsed hr.label {
     display: none;
 }
+
+/* Membuat Header Tabel Tetap (Sticky) */
+.table-responsive {
+    max-height: 70vh; 
+    overflow-y: auto;
+    position: relative; /* Penting untuk konteks sticky */
+}
+
+/* 1. Aturan Umum untuk Semua Sel Header di Tabel PIC dan TCK */
+#tableTCK thead th,
+#tablePIC thead th {
+    position: sticky;
+    /* Paksa warna background gelap agar data tabel tidak terlihat 'tembus' saat di-scroll ke atas */
+    background-color: #212529 !important; /* Ini adalah warna bg-dark Bootstrap */
+    color: #fff !important;
+    /* Menggunakan box-shadow sebagai pengganti border karena border asli sering hilang pada sticky table */
+    box-shadow: inset 0 -1px 0 #495057, inset 0 1px 0 #495057; 
+}
+
+/* 2. Mengunci Baris Pertama (Paling Atas) */
+#tableTCK thead tr:nth-child(1) th,
+#tablePIC thead tr:nth-child(1) th {
+    top: 0; /* Menempel di atap container */
+    z-index: 102; /* Posisi tumpukan paling tinggi */
+}
+
+/* 3. Mengunci Baris Kedua (Hanya TW1, TW2, TW3, TW4 di TCK) */
+#tableTCK thead tr:nth-child(2) th {
+    /* Turunkan angka ini ke 32px, 34px, atau 35px sampai celahnya tertutup rapat */
+    top: 32.5px; 
+    z-index: 101;
+    background-clip: padding-box;
+    box-shadow: inset 0 -1px 0 #495057, inset 0 1px 0 #495057;
+}

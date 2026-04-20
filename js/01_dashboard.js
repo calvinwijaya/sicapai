@@ -5,6 +5,10 @@ var pieChartInstance = null;
 // Inisialisasi awal saat script diload
 refreshData(); // Panggil data pertama kali
 
+function formatNumber(num) {
+    return new Intl.NumberFormat('id-ID').format(num);
+}
+
 function refreshData() {
     const tahun = document.getElementById('filterTahun').value;
     const url = `${GAS_WEB_APP_URL}?tahun=${tahun}`;
@@ -74,10 +78,18 @@ function processAndRenderData(data) {
 
         // Logika Kumulatif berdasarkan filter
         if (filterTw === 'all') {
-            // Jika "Semua Triwulan", ambil langsung hasil akhir dari spreadsheet
             capaianFinal = parseFloat(row[COL.CAPAIAN_TOTAL]) || 0;
-            persentaseFinal = parseFloat(row[COL.PERSENTASE]) || 0;
-            statusFinal = row[COL.KET_CAPAIAN].toString().trim().toLowerCase();
+            
+            // BYPASS ERROR SPREADSHEET: Jika target 0, paksa jadi Tercapai (100%)
+            if (target === 0) {
+                persentaseFinal = 1;
+                statusFinal = 'tercapai';
+            } else {
+                // Gunakan nilai spreadsheet, jika berupa teks "#DIV/0!", ganti jadi 0
+                let sheetPct = parseFloat(row[COL.PERSENTASE]);
+                persentaseFinal = isNaN(sheetPct) ? 0 : sheetPct;
+                statusFinal = row[COL.KET_CAPAIAN].toString().trim().toLowerCase();
+            }
         } else {
             // Jika filter spesifik, kumpulkan data kumulatifnya
             let valuesToConsider = [];
@@ -96,11 +108,10 @@ function processAndRenderData(data) {
             // Hitung Ulang Persentase (Format desimal untuk dikali 100 di render list)
             if (target > 0) {
                 persentaseFinal = capaianFinal / target;
-            } else if (target === 0 && capaianFinal > 0) {
-                persentaseFinal = 1; // Maksimal 100% jika target 0 tapi ada capaian
+            } else {
+                persentaseFinal = 1; // Maksimal 100% jika target 0
             }
 
-            // Tentukan status secara real-time berdasarkan persentase
             statusFinal = persentaseFinal >= 1 ? 'tercapai' : 'tidak tercapai';
 
             // Override nilai di dalam array row agar fungsi renderListTercapai 

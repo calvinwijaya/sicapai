@@ -5,6 +5,11 @@ var isAdminUser = false;
 initUserTCK();
 refreshDataTCK();
 
+// 1. Fungsi Helper Format
+function formatNumber(num) {
+    return new Intl.NumberFormat('id-ID').format(num);
+}
+
 function initUserTCK() {
     const userStr = sessionStorage.getItem("user");
     if (!userStr) {
@@ -63,10 +68,25 @@ function renderTabelTCK() {
             tr.classList.add("table-secondary", "opacity-75");
         }
 
-        let ketCapaian = row[13] || "";
-        let badgeKet = ketCapaian.toLowerCase() === "tercapai" 
+        // --- MULAI PERBAIKAN LOGIKA TARGET 0 & NAN% ---
+        let targetVal = parseFloat(row[6]) || 0;
+        let capaianTotal = parseFloat(row[11]) || 0;
+        
+        let persentaseNum = 0;
+        if (targetVal > 0) {
+            let sheetPct = parseFloat(row[12]);
+            persentaseNum = isNaN(sheetPct) ? (capaianTotal / targetVal) : sheetPct;
+        } else {
+            persentaseNum = 1; // Jika target 0, otomatis 100%
+        }
+        
+        let persentaseStr = Math.round(persentaseNum * 100) + "%";
+        let isTercapai = persentaseNum >= 1;
+
+        let badgeKet = isTercapai 
             ? `<i class="bi bi-check-circle-fill text-success fs-5" title="Tercapai"></i>` 
             : `<i class="bi bi-x-circle-fill text-danger fs-5" title="Tidak Tercapai"></i>`;
+        // --- AKHIR PERBAIKAN LOGIKA ---
 
         let buktiHtml = row[14] ? `<a href="${row[14]}" target="_blank" class="text-truncate d-block" style="max-width: 100px;">Lihat Bukti</a>` : "-";
 
@@ -81,21 +101,20 @@ function renderTabelTCK() {
             aksiHtml = `<i class="bi bi-lock-fill text-muted" title="Bukan tugas Anda"></i>`;
         }
 
-        let persentase = row[12] !== "" ? Math.round(row[12] * 100) + "%" : "-";
-
+        // Memasukkan formatNumber dan variabel yang sudah dikalkulasi ulang
         tr.innerHTML = `
             <td class="fw-bold text-center val-no">${row[0]}</td>
             <td class="small">
                 ${row[3]}
                 <div class="mt-1 text-muted" style="font-size: 0.75rem;">PIC: <b>${row[4] || '-'}</b></div>
             </td>
-            <td class="text-center fw-bold val-target">${row[6] || 0}</td>
-            <td class="text-center val-tw1">${row[7] || 0}</td>
-            <td class="text-center val-tw2">${row[8] || 0}</td>
-            <td class="text-center val-tw3">${row[9] || 0}</td>
-            <td class="text-center val-tw4">${row[10] || 0}</td>
-            <td class="text-center fw-bold bg-light val-capaian-total">${row[11] || 0}</td>
-            <td class="text-center val-persentase">${persentase}</td>
+            <td class="text-center fw-bold val-target" data-value="${targetVal}">${formatNumber(targetVal)}</td>
+            <td class="text-center val-tw1">${formatNumber(row[7] || 0)}</td>
+            <td class="text-center val-tw2">${formatNumber(row[8] || 0)}</td>
+            <td class="text-center val-tw3">${formatNumber(row[9] || 0)}</td>
+            <td class="text-center val-tw4">${formatNumber(row[10] || 0)}</td>
+            <td class="text-center fw-bold bg-light val-capaian-total">${formatNumber(capaianTotal)}</td>
+            <td class="text-center val-persentase">${persentaseStr}</td>
             <td class="text-center val-keterangan">${badgeKet}</td>
             <td class="val-bukti text-center" data-raw="${row[14] || ''}">${buktiHtml}</td>
             <td class="text-center action-col">${aksiHtml}</td>
@@ -103,6 +122,21 @@ function renderTabelTCK() {
         
         tbody.appendChild(tr);
     });
+
+    setTimeout(() => {
+        const row1 = document.querySelector('#tableTCK thead tr:nth-child(1)');
+        const row2Headers = document.querySelectorAll('#tableTCK thead tr:nth-child(2) th');
+        
+        if (row1 && row2Headers.length > 0) {
+            // Ambil tinggi presisi dari baris pertama
+            const row1Height = row1.getBoundingClientRect().height; 
+            
+            // Terapkan tinggi tersebut sebagai titik 'top' untuk baris kedua
+            row2Headers.forEach(th => {
+                th.style.top = row1Height + 'px';
+            });
+        }
+    }, 50);
 }
 
 function enableEditMode(rowNo) {
@@ -152,12 +186,14 @@ function recalculateRow(rowNo, targetVal) {
     let persentase = 0;
     if (targetVal > 0) {
         persentase = (capaianTCK / targetVal) * 100;
-    } else if (targetVal === 0 && capaianTCK > 0) {
-        persentase = 100; 
+    } else {
+        persentase = 100; // Target 0 otomatis tercapai
     }
+    
     let persentaseBulat = Math.round(persentase);
     
-    tr.querySelector('.val-capaian-total').innerText = capaianTCK;
+    // Tampilkan dengan format ribuan
+    tr.querySelector('.val-capaian-total').innerText = formatNumber(capaianTCK);
     tr.querySelector('.val-persentase').innerText = persentaseBulat + '%';
     
     const badgeKet = persentaseBulat >= 100 
