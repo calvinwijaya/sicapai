@@ -11,7 +11,7 @@ function handleCredentialResponse(response) {
     }
   });
 
-  fetch("https://script.google.com/macros/s/AKfycbzlVEuazq6Sfcr8X_g5qdy75AQ5-vONvZBTPzfZxLtMtx9Zgpppd-9T_NmbJudyEt-E3g/exec", {
+  fetch(GAS_LOGIN, {
     method: "POST",
     body: JSON.stringify({
       action: "login",

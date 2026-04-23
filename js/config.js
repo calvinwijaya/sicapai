@@ -1,5 +1,5 @@
+const GAS_LOGIN = "https://script.google.com/macros/s/AKfycbzlVEuazq6Sfcr8X_g5qdy75AQ5-vONvZBTPzfZxLtMtx9Zgpppd-9T_NmbJudyEt-E3g/exec";
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz7D-Ek10JsuRFHWR-fMvOz70xrTk_H0RGqjG_Y6_j8qBiXauf6oge7_ADL4a7YdKbD/exec"; 
-
 const GAS_POST_TCK_URL = "https://script.google.com/macros/s/AKfycbzTel9AaNwLwzv3VuxJa0i59RJ-WG8UIngbgmyXrw7dSlLu5TsMEsbLAuhmjPHM--wZ/exec";
 
 const ADMIN_EMAILS = [
